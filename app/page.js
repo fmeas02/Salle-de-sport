@@ -159,3 +159,377 @@ const coachs = [
 const gallery = [
   "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=700&q=80",
   "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=700&q=80",
+  "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=700&q=80",
+  "https://images.unsplash.com/photo-1571731956672-f2b94d7dd0cb?w=700&q=80",
+  "https://images.unsplash.com/photo-1540497077202-7c8a3999166f?w=700&q=80",
+  "https://images.unsplash.com/photo-1558611848-73f7eb4001a1?w=700&q=80",
+];
+
+const avis = [
+  { name: "Camille R.", text: "Ambiance incroyable, coachs à l'écoute. J'ai vu des résultats en 2 mois que je n'avais jamais eus ailleurs.", note: 5 },
+  { name: "Thomas L.", text: "Le meilleur rapport qualité-prix de Paris. Les cours de cross training sont intenses mais super encadrés.", note: 5 },
+  { name: "Sarah B.", text: "Locaux magnifiques, toujours propres, jamais bondé aux heures de pointe. Je recommande à 100%.", note: 5 },
+];
+
+const faqs = [
+  { q: "Puis-je essayer avant de m'engager ?", a: "Oui, un essai gratuit d'une séance est offert à tout nouvel adhérent, sans engagement." },
+  { q: "Y a-t-il un engagement de durée ?", a: "L'abonnement mensuel est sans engagement. Les formules trimestrielle et annuelle sont plus avantageuses mais engagées sur la durée choisie." },
+  { q: "Les cours collectifs sont-ils inclus ?", a: "Oui, tous les cours collectifs (cross training, yoga, boxing, pilates...) sont inclus dans chaque formule." },
+  { q: "Puis-je suspendre mon abonnement ?", a: "Oui, une suspension pour raison médicale ou voyage est possible sur simple demande à l'accueil." },
+  { q: "La salle est-elle ouverte les jours fériés ?", a: "Oui, APEX Gym est ouvert 7j/7 toute l'année, y compris les jours fériés, avec des horaires aménagés." },
+];
+
+const trustLogos = ["FitMag", "Sport Hebdo", "Le Guide Fitness", "Paris Sport News", "Muscu&Co"];
+
+const engagements = [
+  { title: "Essai gratuit", desc: "Une séance offerte avant de vous engager, sans carte bancaire." },
+  { title: "Sans engagement", desc: "La formule mensuelle se résilie à tout moment, sans frais cachés." },
+  { title: "Satisfaction garantie", desc: "Remboursé sous 30 jours si la salle ne vous convient pas." },
+  { title: "Hygiène irréprochable", desc: "Nettoyage du matériel toutes les 2 heures, produits mis à disposition." },
+];
+
+const sectionIds = ["presentation", "abonnements", "planning", "reservation", "coachs", "contact"];
+
+export default function Home() {
+  const [navOpen, setNavOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [activeSection, setActiveSection] = useState(null);
+  const [openFaq, setOpenFaq] = useState(null);
+  const [selectedClass, setSelectedClass] = useState(classes[0].name);
+  const [bookingStatus, setBookingStatus] = useState("idle");
+  const [contactStatus, setContactStatus] = useState("idle");
+
+  useEffect(() => {
+    const onScroll = () => {
+      setScrolled(window.scrollY > 40);
+      const h = document.documentElement;
+      const progress = (window.scrollY / (h.scrollHeight - h.clientHeight)) * 100;
+      setScrollProgress(progress);
+    };
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) setActiveSection(entry.target.id);
+        });
+      },
+      { rootMargin: "-45% 0px -50% 0px" }
+    );
+    sectionIds.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+    return () => observer.disconnect();
+  }, []);
+
+  async function submitForm(e, subject, setStatus) {
+    e.preventDefault();
+    setStatus("sending");
+    const form = e.target;
+    const data = new FormData(form);
+    data.append("access_key", WEB3FORMS_ACCESS_KEY);
+    data.append("subject", subject);
+    try {
+      const res = await fetch("https://api.web3forms.com/submit", { method: "POST", body: data });
+      const result = await res.json();
+      if (result.success) {
+        setStatus("success");
+        form.reset();
+      } else {
+        setStatus("error");
+      }
+    } catch (err) {
+      setStatus("error");
+    }
+  }
+
+  const timeSlots = ["7h00", "9h00", "12h30", "18h00", "19h30"];
+
+  return (
+    <div className="relative overflow-x-hidden pb-16 md:pb-0" style={{ background: "var(--black)" }}>
+      {/* SCROLL PROGRESS BAR */}
+      <div className="fixed top-0 left-0 right-0 z-[60] h-[3px]" style={{ background: "transparent" }}>
+        <div className="h-full" style={{ width: `${scrollProgress}%`, background: "var(--red)", transition: "width 0.1s linear" }} />
+      </div>
+
+      {/* NAV */}
+      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? "nav-blur" : ""}`}>
+        <div className="max-w-7xl mx-auto px-6 md:px-10 py-5 flex items-center justify-between">
+          <a href="#" className="disp text-2xl tracking-wide text-white">
+            APEX<span style={{ color: "var(--red)" }}>.</span>
+          </a>
+          <div className="hidden md:flex items-center gap-8 text-sm" style={{ color: "var(--text-dim-dark)" }}>
+            {[
+              ["presentation", "Salle"],
+              ["abonnements", "Abonnements"],
+              ["planning", "Planning"],
+              ["reservation", "Réserver"],
+              ["coachs", "Coachs"],
+              ["contact", "Contact"],
+            ].map(([id, label]) => (
+              
+                key={id}
+                href={`#${id}`}
+                className="transition-colors"
+                style={{ color: activeSection === id ? "var(--red)" : "var(--text-dim-dark)" }}
+              >
+                {label}
+              </a>
+            ))}
+          </div>
+          <a href="#reservation" className="hidden md:inline-flex btn-primary text-sm px-6 py-2.5 font-semibold">Essai gratuit</a>
+          <button onClick={() => setNavOpen(!navOpen)} className="md:hidden text-white">
+            {navOpen ? <X size={26} /> : <Menu size={26} />}
+          </button>
+        </div>
+        {navOpen && (
+          <div className="md:hidden flex flex-col gap-5 px-6 pb-8 text-sm" style={{ background: "var(--black)", color: "var(--text-dim-dark)" }}>
+            <a href="#presentation" onClick={() => setNavOpen(false)}>Salle</a>
+            <a href="#abonnements" onClick={() => setNavOpen(false)}>Abonnements</a>
+            <a href="#planning" onClick={() => setNavOpen(false)}>Planning</a>
+            <a href="#reservation" onClick={() => setNavOpen(false)}>Réserver</a>
+            <a href="#coachs" onClick={() => setNavOpen(false)}>Coachs</a>
+            <a href="#contact" onClick={() => setNavOpen(false)}>Contact</a>
+          </div>
+        )}
+      </nav>
+
+      {/* HERO */}
+      <section className="relative min-h-screen flex items-end">
+        <video autoPlay muted loop playsInline poster="https://assets.mixkit.co/videos/14661/14661-thumb-720-0.jpg" className="absolute inset-0 w-full h-full object-cover">
+          <source src="https://assets.mixkit.co/videos/14661/14661-720.mp4" type="video/mp4" />
+        </video>
+        <div className="absolute inset-0" style={{ background: "linear-gradient(to top, var(--black) 8%, rgba(10,10,10,0.55) 50%, rgba(10,10,10,0.35))" }} />
+        <div className="relative max-w-7xl mx-auto px-6 md:px-10 pb-24 pt-40 w-full">
+          <Reveal>
+            <p className="label mb-6">Salle de sport premium — Paris</p>
+          </Reveal>
+          <Reveal delay={0.1}>
+            <h1 className="h1 text-[15vw] md:text-[7.5vw] text-white mb-8">
+              Dépasse<br /><span style={{ color: "var(--red)" }}>tes limites.</span>
+            </h1>
+          </Reveal>
+          <Reveal delay={0.2}>
+            <p className="max-w-lg mb-10 text-base" style={{ color: "var(--text-dim-dark)" }}>
+              Cross training, musculation, boxing, yoga — un espace pensé pour ceux qui veulent des résultats, pas des excuses.
+            </p>
+          </Reveal>
+          <Reveal delay={0.3}>
+            <div className="flex flex-wrap gap-4">
+              <a href="#reservation" className="btn-primary px-8 py-4 font-semibold text-sm">Commencer maintenant</a>
+              <a href="#abonnements" className="btn-outline-dark px-8 py-4 font-semibold text-sm">Essai gratuit</a>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* TRUST BAR */}
+      <div className="py-8 border-y" style={{ borderColor: "var(--line-dark)" }}>
+        <div className="max-w-7xl mx-auto px-6 md:px-10">
+          <p className="text-center text-xs uppercase tracking-widest mb-5" style={{ color: "var(--text-muted-dark)" }}>Vu dans</p>
+          <div className="flex flex-wrap justify-center gap-x-12 gap-y-4">
+            {trustLogos.map((logo) => (
+              <span key={logo} className="disp text-lg uppercase" style={{ color: "var(--text-muted-dark)" }}>{logo}</span>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* STATS */}
+      <section className="py-16" style={{ background: "var(--red)" }}>
+        <div className="max-w-7xl mx-auto px-6 md:px-10 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+          {stats.map((s) => (
+            <Reveal key={s.label}>
+              <p className="disp text-4xl md:text-5xl text-white"><Counter value={s.value} suffix={s.suffix} /></p>
+              <p className="text-xs uppercase tracking-widest mt-2 text-white/80">{s.label}</p>
+            </Reveal>
+          ))}
+        </div>
+      </section>
+
+      {/* PRESENTATION */}
+      <section id="presentation" className="py-24 md:py-32" style={{ background: "var(--off-white)", color: "var(--black)" }}>
+        <div className="max-w-7xl mx-auto px-6 md:px-10 grid md:grid-cols-2 gap-14 items-center">
+          <Reveal>
+            <img src="https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=900&q=80" className="w-full aspect-[4/5] object-cover" alt="Intérieur de la salle APEX Gym" />
+          </Reveal>
+          <Reveal delay={0.1}>
+            <p className="label mb-5">La salle</p>
+            <h2 className="h2 text-4xl md:text-5xl mb-6">1200m² pensés pour la performance.</h2>
+            <p className="leading-relaxed mb-5" style={{ color: "var(--text-dim-light)" }}>
+              APEX Gym réunit un plateau de musculation dernière génération, trois studios de cours collectifs, un ring de boxe et un espace bien-être — le tout dans un cadre premium pensé jusqu'au moindre détail.
+            </p>
+            <p className="leading-relaxed" style={{ color: "var(--text-dim-light)" }}>
+              Douze coachs certifiés, du matériel Technogym et Rogue, et une équipe présente sur place 7j/7 pour vous accompagner.
+            </p>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ENGAGEMENTS */}
+      <section className="py-16" style={{ background: "var(--off-white)", color: "var(--black)" }}>
+        <div className="max-w-7xl mx-auto px-6 md:px-10 grid md:grid-cols-4 gap-8">
+          {engagements.map((e, i) => (
+            <Reveal key={e.title} delay={i * 0.06}>
+              <div className="flex items-start gap-3">
+                <Check size={20} style={{ color: "var(--red)" }} className="mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="font-semibold mb-1">{e.title}</p>
+                  <p className="text-sm" style={{ color: "var(--text-dim-light)" }}>{e.desc}</p>
+                </div>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </section>
+
+      {/* ABONNEMENTS */}
+      <section id="abonnements" className="py-24 md:py-32">
+        <div className="max-w-7xl mx-auto px-6 md:px-10">
+          <Reveal>
+            <p className="label mb-5">Abonnements</p>
+            <h2 className="h2 text-4xl md:text-5xl mb-14 max-w-2xl text-white">Une formule pour chaque ambition.</h2>
+          </Reveal>
+          <div className="grid md:grid-cols-3 gap-6">
+            {plans.map((p, i) => (
+              <Reveal key={p.name} delay={i * 0.1}>
+                <div className="card-dark p-8 h-full flex flex-col" style={p.tag === "Populaire" ? { borderColor: "var(--red)" } : {}}>
+                  {p.tag && (
+                    <p className="label mb-4" style={{ color: p.tag === "Populaire" ? "var(--red)" : "#fff" }}>{p.tag}</p>
+                  )}
+                  <p className="disp text-2xl text-white uppercase mb-2">{p.name}</p>
+                  <p className="mb-6"><span className="disp text-4xl text-white">{p.price}</span><span style={{ color: "var(--text-muted-dark)" }}>{p.period}</span></p>
+                  <div className="space-y-3 mb-8 flex-1">
+                    {p.features.map((f) => (
+                      <div key={f} className="flex items-start gap-2 text-sm" style={{ color: "var(--text-dim-dark)" }}>
+                        <Check size={16} style={{ color: "var(--red)" }} className="mt-0.5 flex-shrink-0" />
+                        <span>{f}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <a href="#reservation" className="btn-primary text-center py-3 font-semibold text-sm">Choisir cette formule</a>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* PLANNING */}
+      <section id="planning" className="py-24 md:py-32" style={{ background: "var(--off-white)", color: "var(--black)" }}>
+        <div className="max-w-7xl mx-auto px-6 md:px-10">
+          <Reveal>
+            <p className="label mb-5">Planning des cours</p>
+            <h2 className="h2 text-4xl md:text-5xl mb-14 max-w-2xl">Six disciplines, un seul objectif.</h2>
+          </Reveal>
+          <div className="grid md:grid-cols-2 gap-6">
+            {classes.map((c, i) => {
+              const Icon = c.icon;
+              return (
+                <Reveal key={c.name} delay={(i % 2) * 0.08}>
+                  <div className="card-light p-7">
+                    <div className="flex items-center gap-3 mb-5">
+                      <div className="w-11 h-11 flex items-center justify-center rounded-full" style={{ background: "var(--red)" }}>
+                        <Icon size={20} color="#fff" />
+                      </div>
+                      <p className="disp text-xl uppercase">{c.name}</p>
+                    </div>
+                    <div className="space-y-3">
+                      {c.sessions.map((s, idx) => (
+                        <div key={idx} className="flex justify-between items-center text-sm py-2 border-t" style={{ borderColor: "var(--line-light)" }}>
+                          <div>
+                            <p className="font-medium">{s.day}</p>
+                            <p style={{ color: "var(--text-muted-light)" }}>{s.time}</p>
+                          </div>
+                          <div className="text-right">
+                            <p>{s.coach}</p>
+                            <p style={{ color: "var(--text-muted-light)" }}>{s.duree} · {s.niveau}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </Reveal>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* RESERVATION */}
+      <section id="reservation" className="py-24 md:py-32">
+        <div className="max-w-3xl mx-auto px-6 md:px-10">
+          <Reveal>
+            <p className="label mb-5">Réservation</p>
+            <h2 className="h2 text-4xl md:text-5xl mb-14 text-white">Réservez votre créneau.</h2>
+          </Reveal>
+          <Reveal delay={0.1}>
+            <div className="card-dark p-8">
+              {bookingStatus === "success" ? (
+                <p className="text-center py-8" style={{ color: "var(--red)" }}>
+                  Réservation envoyée ! Nous confirmons votre place sous peu par email.
+                </p>
+              ) : (
+                <form onSubmit={(e) => submitForm(e, "Nouvelle réservation de cours — APEX Gym", setBookingStatus)} className="space-y-6">
+                  <div>
+                    <p className="text-sm mb-3 text-white font-medium">Choisissez un cours</p>
+                    <div className="flex flex-wrap gap-2">
+                      {classes.map((c) => (
+                        <button
+                          type="button"
+                          key={c.name}
+                          onClick={() => setSelectedClass(c.name)}
+                          className={`px-4 py-2 text-sm rounded-full transition-colors ${selectedClass === c.name ? "pill-active" : "pill-inactive"}`}
+                        >
+                          {c.name}
+                        </button>
+                      ))}
+                    </div>
+                    <input type="hidden" name="cours" value={selectedClass} />
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm mb-2 text-white font-medium">Date souhaitée</p>
+                      <input required type="date" name="date" className="w-full px-4 py-3 text-sm rounded" style={{ background: "var(--black)", border: "1px solid var(--line-dark)", color: "#fff" }} />
+                    </div>
+                    <div>
+                      <p className="text-sm mb-2 text-white font-medium">Horaire souhaité</p>
+                      <select required name="heure" className="w-full px-4 py-3 text-sm rounded" style={{ background: "var(--black)", border: "1px solid var(--line-dark)", color: "#fff" }}>
+                        <option value="">Choisir un horaire</option>
+                        {timeSlots.map((t) => (
+                          <option key={t} value={t}>{t}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <input required type="text" name="name" placeholder="Votre nom" className="px-4 py-3 text-sm rounded" style={{ background: "var(--black)", border: "1px solid var(--line-dark)", color: "#fff" }} />
+                    <input required type="email" name="email" placeholder="Votre email" className="px-4 py-3 text-sm rounded" style={{ background: "var(--black)", border: "1px solid var(--line-dark)", color: "#fff" }} />
+                  </div>
+
+                  <button disabled={bookingStatus === "sending"} className="btn-primary w-full py-4 font-semibold text-sm">
+                    {bookingStatus === "sending" ? "Envoi en cours..." : "Réserver ma place"}
+                  </button>
+                  {bookingStatus === "error" && (
+                    <p className="text-sm text-center" style={{ color: "var(--red-light)" }}>Une erreur est survenue, réessayez dans un instant.</p>
+                  )}
+                </form>
+              )}
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* COACHS */}
+      <section id="coachs" className="py-24 md:py-32" style={{ background: "var(--off-white)", color: "var(--black)" }}>
+        <div className="max-w-7xl mx-auto px-6 md:px-10">
+          <Reveal>
+            <p className="label mb-5">Nos coachs</p>
+            <h2 className="h2 text-4xl md:text-5xl mb-14 max-w-2xl">Douze experts, une même exigence.</h2>
