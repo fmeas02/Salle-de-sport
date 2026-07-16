@@ -533,3 +533,178 @@ export default function Home() {
           <Reveal>
             <p className="label mb-5">Nos coachs</p>
             <h2 className="h2 text-4xl md:text-5xl mb-14 max-w-2xl">Douze experts, une même exigence.</h2>
+          </Reveal>
+          <div className="grid md:grid-cols-3 gap-6">
+            {coachs.map((c, i) => (
+              <Reveal key={c.name} delay={(i % 3) * 0.08}>
+                <div className="card-light overflow-hidden">
+                  <img src={c.img} className="w-full aspect-[4/5] object-cover" alt={c.name} />
+                  <div className="p-6">
+                    <p className="disp text-lg uppercase">{c.name}</p>
+                    <p className="label mb-3" style={{ fontSize: 11 }}>{c.spec}</p>
+                    <p className="text-sm" style={{ color: "var(--text-dim-light)" }}>{c.bio}</p>
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* GALERIE */}
+      <section className="py-24 md:py-32">
+        <div className="max-w-7xl mx-auto px-6 md:px-10">
+          <Reveal>
+            <p className="label mb-5">Galerie</p>
+            <h2 className="h2 text-4xl md:text-5xl mb-14 max-w-2xl text-white">L&apos;énergie APEX, en images.</h2>
+          </Reveal>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            {gallery.map((src, i) => (
+              <Reveal key={src} delay={(i % 3) * 0.06}>
+                <img src={src} className="w-full aspect-square object-cover" alt="Galerie APEX Gym" />
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* AVIS */}
+      <section className="py-24 md:py-32" style={{ background: "var(--off-white)", color: "var(--black)" }}>
+        <div className="max-w-7xl mx-auto px-6 md:px-10">
+          <Reveal>
+            <p className="label mb-5">Avis clients</p>
+            <h2 className="h2 text-4xl md:text-5xl mb-14 max-w-2xl">Ils en parlent mieux que nous.</h2>
+          </Reveal>
+          <div className="grid md:grid-cols-3 gap-6">
+            {avis.map((a, i) => (
+              <Reveal key={a.name} delay={i * 0.08}>
+                <div className="card-light p-7">
+                  <p className="mb-4" style={{ color: "var(--red)" }}>{"★".repeat(a.note)}</p>
+                  <p className="text-sm leading-relaxed mb-5" style={{ color: "var(--text-dim-light)" }}>&quot;{a.text}&quot;</p>
+                  <p className="text-sm font-medium">{a.name}</p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="py-24 md:py-32">
+        <div className="max-w-3xl mx-auto px-6 md:px-10">
+          <Reveal>
+            <p className="label mb-5">FAQ</p>
+            <h2 className="h2 text-4xl md:text-5xl mb-14 text-white">Des questions ?</h2>
+          </Reveal>
+          <div className="space-y-3">
+            {faqs.map((f, i) => (
+              <Reveal key={f.q} delay={i * 0.05}>
+                <div className="card-dark p-6 cursor-pointer" onClick={() => setOpenFaq(openFaq === i ? null : i)}>
+                  <div className="flex justify-between items-center gap-4">
+                    <p className="text-white font-medium">{f.q}</p>
+                    <motion.div animate={{ rotate: openFaq === i ? 180 : 0 }} transition={{ duration: 0.25 }}>
+                      <ChevronDown size={20} color="#fff" />
+                    </motion.div>
+                  </div>
+                  {openFaq === i && (
+                    <motion.p
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      transition={{ duration: 0.25 }}
+                      className="text-sm mt-4"
+                      style={{ color: "var(--text-dim-dark)" }}
+                    >
+                      {f.a}
+                    </motion.p>
+                  )}
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CONTACT */}
+      <section id="contact" className="py-24 md:py-32" style={{ background: "var(--off-white)", color: "var(--black)" }}>
+        <div className="max-w-7xl mx-auto px-6 md:px-10 grid md:grid-cols-2 gap-12">
+          <Reveal>
+            <p className="label mb-5">Contact</p>
+            <h2 className="h2 text-4xl md:text-5xl mb-8">Une question ? Écrivez-nous.</h2>
+            {contactStatus === "success" ? (
+              <p style={{ color: "var(--red)" }}>Merci, votre message a bien été envoyé !</p>
+            ) : (
+              <form onSubmit={(e) => submitForm(e, "Nouveau message de contact — APEX Gym", setContactStatus)} className="space-y-4">
+                <input required type="text" name="name" placeholder="Votre nom" className="w-full px-4 py-3 text-sm" style={{ background: "#fff", border: "1px solid var(--line-light)" }} />
+                <input required type="email" name="email" placeholder="Votre email" className="w-full px-4 py-3 text-sm" style={{ background: "#fff", border: "1px solid var(--line-light)" }} />
+                <textarea name="message" placeholder="Votre message" rows="4" className="w-full px-4 py-3 text-sm" style={{ background: "#fff", border: "1px solid var(--line-light)" }} />
+                <button disabled={contactStatus === "sending"} className="btn-primary px-8 py-3 font-semibold text-sm">
+                  {contactStatus === "sending" ? "Envoi..." : "Envoyer"}
+                </button>
+                {contactStatus === "error" && <p className="text-sm" style={{ color: "var(--red)" }}>Erreur, réessayez.</p>}
+              </form>
+            )}
+
+            <div className="mt-10 space-y-3 text-sm" style={{ color: "var(--text-dim-light)" }}>
+              <div className="flex items-center gap-3"><Phone size={16} /><span>01 40 00 00 00</span></div>
+              <div className="flex items-center gap-3"><Mail size={16} /><span>contact@apexgym.fr</span></div>
+              <div className="flex items-center gap-3"><MapPin size={16} /><span>25 avenue des Champions, 75012 Paris</span></div>
+              <div className="flex items-center gap-3"><Clock size={16} /><span>Lun–Ven 6h–23h · Sam–Dim 8h–21h</span></div>
+            </div>
+          </Reveal>
+          <Reveal delay={0.1}>
+            <iframe
+              title="Localisation APEX Gym"
+              src="https://www.google.com/maps?q=Paris,France&output=embed"
+              className="w-full h-full min-h-[380px] border-0"
+              loading="lazy"
+            />
+          </Reveal>
+        </div>
+      </section>
+
+      {/* MOBILE STICKY CTA */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 flex" style={{ background: "var(--black)", borderTop: "1px solid var(--line-dark)" }}>
+        <a href="tel:0140000000" className="flex-1 flex items-center justify-center gap-2 py-4 text-sm font-medium text-white">
+          <Phone size={16} /> Appeler
+        </a>
+        <a href="#reservation" className="flex-1 flex items-center justify-center py-4 text-sm font-semibold" style={{ background: "var(--red)", color: "#fff" }}>
+          Réserver
+        </a>
+      </div>
+
+      {/* FOOTER */}
+      <footer className="py-14 border-t" style={{ borderColor: "var(--line-dark)" }}>
+        <div className="max-w-7xl mx-auto px-6 md:px-10">
+          <div className="flex flex-col md:flex-row justify-between gap-8 mb-10">
+            <div>
+              <p className="disp text-2xl text-white mb-3">APEX<span style={{ color: "var(--red)" }}>.</span></p>
+              <p className="text-sm max-w-xs" style={{ color: "var(--text-muted-dark)" }}>Salle de sport premium à Paris. Cross training, musculation, boxing, yoga.</p>
+            </div>
+            <div className="flex gap-16">
+              <div>
+                <p className="text-xs uppercase tracking-widest mb-3 text-white">Navigation</p>
+                <div className="flex flex-col gap-2 text-sm" style={{ color: "var(--text-muted-dark)" }}>
+                  <a href="#abonnements">Abonnements</a>
+                  <a href="#planning">Planning</a>
+                  <a href="#coachs">Coachs</a>
+                  <a href="#contact">Contact</a>
+                </div>
+              </div>
+              <div>
+                <p className="text-xs uppercase tracking-widest mb-3 text-white">Légal</p>
+                <div className="flex flex-col gap-2 text-sm" style={{ color: "var(--text-muted-dark)" }}>
+                  <a href="/mentions-legales">Mentions légales</a>
+                  <a href="/politique-de-confidentialite">Politique de confidentialité</a>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4 pt-8 border-t text-sm" style={{ borderColor: "var(--line-dark)", color: "var(--text-muted-dark)" }}>
+            <p>© 2026 APEX Gym. Tous droits réservés.</p>
+            <a href="#" className="flex items-center gap-2 hover:text-white transition-colors"><Instagram size={16} /> @apexgym</a>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
