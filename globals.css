@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+:root {
+  --black: #0a0a0a;
+  --black-2: #141414;
+  --white: #ffffff;
+  --off-white: #f2f2f0;
+  --red: #e10600;
+  --red-light: #ff2d20;
+  --text-dim-dark: rgba(255, 255, 255, 0.65);
+  --text-muted-dark: rgba(255, 255, 255, 0.4);
+  --text-dim-light: rgba(10, 10, 10, 0.65);
+  --text-muted-light: rgba(10, 10, 10, 0.42);
+  --line-dark: rgba(255, 255, 255, 0.12);
+  --line-light: rgba(10, 10, 10, 0.12);
+}
+
+body {
+  background: var(--black);
+  color: var(--white);
+  font-family: var(--font-inter), sans-serif;
+}
+
+::selection { background: var(--red); color: #fff; }
+
+.disp { font-family: var(--font-anton), sans-serif; }
+.h1 { font-family: var(--font-anton), sans-serif; font-weight: 400; line-height: 0.9; letter-spacing: -0.01em; text-transform: uppercase; }
+.h2 { font-family: var(--font-anton), sans-serif; font-weight: 400; line-height: 0.95; letter-spacing: -0.01em; text-transform: uppercase; }
+.label { font-size: 12px; letter-spacing: .3em; text-transform: uppercase; color: var(--red); font-weight: 700; }
+
+.line-mask { overflow: hidden; }
+.nav-blur { backdrop-filter: blur(14px); background: rgba(10,10,10,0.75); }
+
+.btn-primary { background: var(--red); color: #fff; transition: background .3s ease, transform .2s ease; }
+.btn-primary:hover { background: var(--red-light); }
+.btn-outline-dark { border: 1.5px solid #fff; color: #fff; transition: all .3s ease; }
+.btn-outline-dark:hover { background: #fff; color: var(--black); }
+.btn-outline-light { border: 1.5px solid var(--black); color: var(--black); transition: all .3s ease; }
+.btn-outline-light:hover { background: var(--black); color: #fff; }
+
+.card-dark { background: var(--black-2); border: 1px solid var(--line-dark); transition: transform .3s ease, border-color .3s ease; }
+.card-dark:hover { border-color: var(--red); transform: translateY(-4px); }
+.card-light { background: #fff; border: 1px solid var(--line-light); transition: transform .3s ease, border-color .3s ease; }
+.card-light:hover { border-color: var(--red); transform: translateY(-4px); }
+
+.pill-active { background: var(--red); color: #fff; }
+.pill-inactive { background: transparent; border: 1px solid var(--line-dark); color: var(--text-dim-dark); }
